@@ -1,0 +1,40 @@
+body {
+  background-color: rgb(222, 241, 180);
+}
+input {
+  height: 30px;
+  width: 200px;
+  border-radius: 10px;
+  border: none;
+  padding: 10px;
+}
+button {
+  padding: 10px;
+
+  width: 80px;
+  border-radius: 10px;
+}
+
+#signup,
+#signin {
+  height: 100svh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+}
+
+#signin-container {
+  display: none;
+}
+
+#signin-btn-switch {
+  background-color: rgb(222, 241, 180);
+  border: none;
+  padding: 0px;
+  margin: 0px;
+  width: 55px;
+  font-size: 1rem;
+  font-weight: 600;
+}

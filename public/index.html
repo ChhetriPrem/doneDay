@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Todo App</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div id="signup-container">
+      <div id="signup">
+        <img src="./assets/bg.png" height="200px" />
+        <input id="email" placeholder="Email" />
+        <input id="password" placeholder="Password" />
+        <input id="username" placeholder="Username" />
+        <p>
+          Already have an account?
+          <button onclick="switchLogin()" id="signin-btn-switch">
+            Sign in
+          </button>
+        </p>
+        <button onclick="sendData()">Send</button>
+      </div>
+    </div>
+    <div id="signin-container" style="display: none">
+      <div id="signin">
+        <img src="./assets/bg.png" height="200px" />
+        <input id="l-email" placeholder="Email" />
+        <input id="l-password" placeholder="Password" />
+        <button onclick="retrieveData()">Send</button>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+      // Check for token on page load
+
+      const switchLogin = () => {
+        const signupDiv = document.getElementById("signup-container");
+        const signinDiv = document.getElementById("signin-container");
+
+        signupDiv.style.display = "none";
+        signinDiv.style.display = "block";
+      };
+
+      const sendData = async () => {
+        const email = document.getElementById("email").value;
+        const password = document.getElementById("password").value;
+        const username = document.getElementById("username").value;
+
+        try {
+          const response = await axios.post("/signup", {
+            email: email,
+            password: password,
+            username: username,
+          });
+
+          console.log(response.data.success);
+          const token = response.headers["token"];
+          console.log(token);
+          localStorage.setItem("token", token); // Store the token
+          if (response.data.success) {
+            window.location.href = "/todo"; // Redirect if signup successful
+          }
+        } catch (error) {
+          console.error("Error during signup:", error);
+        }
+      };
+
+      const retrieveData = async () => {
+        const email = document.getElementById("l-email").value;
+        const password = document.getElementById("l-password").value;
+
+        try {
+          const response = await axios.post("/signin", {
+            email: email,
+            password: password,
+          });
+
+          if (response.data.success) {
+            window.location.href = "/todo"; // Redirect if login successful
+            console.log("Logged in successfully");
+            const token = response.headers["token"];
+            console.log(token);
+            localStorage.setItem("token", token); // Store the token
+          } else {
+            console.log("Something went terribly wrong");
+          }
+        } catch (error) {
+          console.error("Error during sign-in:", error);
+        }
+      };
+
+      window.onload = async () => {
+        const token = localStorage.getItem("token"); // Adjust to your token key
+
+        if (token) {
+          try {
+            const response = await axios.get("/", {
+              headers: {
+                token: token, // Send token in the header
+              },
+            });
+
+            // Redirect to /todo if token is valid
+            if (response.data.success) {
+              window.location.href = "/todo";
+            } else {
+              console.log("Token is invalid, please sign in.");
+            }
+          } catch (error) {
+            console.error("Error validating token:", error);
+          }
+        }
+      };
+    </script>
+  </body>
+</html>
