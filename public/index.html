@@ -101,11 +101,14 @@
         }
 
         try {
-          const response = await axios.post("/signup", {
-            email,
-            password,
-            username,
-          });
+          const response = await axios.post(
+            "https://done-day.vercel.app/signup",
+            {
+              email,
+              password,
+              username,
+            }
+          );
 
           if (response.data.success) {
             const token = response.data.token;
@@ -133,7 +136,10 @@
         }
 
         try {
-          const response = await axios.post("/signin", { email, password });
+          const response = await axios.post(
+            "https://done-day.vercel.app/signin",
+            { email, password }
+          );
 
           if (response.data.success) {
             const token = response.data.token;
