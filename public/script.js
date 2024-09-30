@@ -2,8 +2,7 @@ import { showToast } from "./components/toast/toast.js";
 
 const fetchName = async () => {
   try {
-    
-    const response = await fetch("http://localhost:6969/api/todos");
+    const response = await fetch("/api/todos");
     const data = await response.json();
     const username = data.username;
     const greet = document.getElementById("greet");
@@ -112,7 +111,7 @@ const run = async () => {
   const existingTodos = Array.from(main.children); // Get existing todos
 
   try {
-    const response = await fetch("http://localhost:6969/api/todos");
+    const response = await fetch("/api/todos");
     const data = await response.json();
 
     const todos = data.todos;
