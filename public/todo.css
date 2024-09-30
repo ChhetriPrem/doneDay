@@ -1,0 +1,193 @@
+body {
+  background-color: #f9d99c;
+  gap: 100px;
+  height: 80svh;
+  font-family: "Trebuchet MS", "Lucida Sans Unicode", "Lucida Grande",
+    "Lucida Sans", Arial, sans-serif;
+}
+
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 10%;
+}
+
+input {
+  height: 30px;
+  width: 200px;
+  border-radius: 10px;
+  /* border: dotted; */
+  padding: 10px;
+  background-color: #f7cf84;
+}
+
+#input {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.input {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+#main {
+  overflow-y: scroll;
+  background-color: rgba(252, 214, 220, 0.955);
+  border-radius: 20px;
+  padding: 20px;
+  font-size: 20px;
+  height: 63svh;
+  width: 40svw;
+  box-shadow: 5px 5px 10px rgb(240, 154, 154);
+}
+
+#main::-webkit-scrollbar {
+  width: 10px; /* Adjust the width of the scrollbar */
+}
+
+#main::-webkit-scrollbar-track {
+  background: #ec7e7e;
+  border-radius: 10px; /* Light grey background */
+}
+
+#main::-webkit-scrollbar-thumb {
+  background: rgb(240, 154, 168); /* Grey color for the thumb */
+  border-radius: 10px; /* Rounded corners for the thumb */
+  border: 1px solid black;
+}
+
+#main::-webkit-scrollbar-thumb:hover {
+  background: #f9d99c;
+  box-shadow: 10px 10px 10px pink; /* Darker grey on hover */
+}
+
+#send,
+#signout {
+  background-color: rgba(240, 248, 255, 0);
+}
+
+.send-button:hover {
+  background-color: rgb(255, 168, 197);
+  color: white;
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+header > button {
+  background-color: #f9d99c;
+}
+
+#send {
+  margin-right: 20px; /* Space between buttons */
+}
+
+.description {
+  height: 100px; /* Fixed height for the description input */
+}
+
+.loading {
+  display: none;
+}
+
+.todo-item {
+  background-color: #fbcf7f;
+  border: 3px dotted rgb(102, 102, 102);
+  margin-bottom: 10px;
+  padding: 10px;
+  border-radius: 30px;
+  display: flex; /* Flexbox for alignment */
+  flex-direction: column;
+  /* Space between title and buttons */
+  /* align-items: center; Center items vertically */
+}
+
+.todo-item button {
+  background-color: #fae1b3;
+  border: none;
+  border-radius: 5px;
+  padding: 5px 10px;
+  margin-left: 10px; /* Space between buttons */
+  cursor: pointer; /* Pointer cursor for buttons */
+}
+
+.todo-item button:hover {
+  background-color: #f9d99c; /* Change color on hover */
+}
+
+.send-button {
+  background-color: #fae1b3;
+  border: 1px solid black;
+  border-radius: 10px;
+  padding: 10px;
+  font-weight: 900;
+  font-size: 0.9rem;
+}
+
+#titleId {
+  margin: 0;
+  padding: 0;
+}
+.todo-item {
+  background-color: #fbcf7f;
+  border: 3px dotted rgb(102, 102, 102);
+  margin-bottom: 10px;
+  padding: 10px;
+  border-radius: 30px;
+  display: flex;
+  flex-direction: column; /* Stack elements vertically */
+  align-items: flex-start; /* Align items to the start */
+}
+
+.todo-title,
+.todo-description {
+  margin: 0; /* Remove default margin */
+}
+
+.edit-input {
+  border: 1px solid #000000;
+  border-radius: 5px;
+  background-color: #ffb2b2;
+  padding: 5px;
+  width: auto; /* Set width to auto for inputs */
+  max-width: 100%; /* Allow it to expand but limit to the container */
+}
+
+button {
+  background-color: #fae1b3;
+  border: 1px solid black;
+  border-radius: 10px;
+  padding: 5px 10px; /* Add padding for button */
+  margin-top: 5px; /* Space between elements */
+  cursor: pointer; /* Change cursor on hover */
+  width: auto; /* Set width to auto for buttons */
+}
+
+.todo-item > div:nth-child(2) {
+  padding: -30px;
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+}
+h3 {
+  padding-bottom: 10px;
+  padding-top: 5px;
+}
+p {
+  opacity: 0.6;
+  font-size: medium;
+}
+
+#header-btn {
+  display: flex;
+  gap: 40px;
+}

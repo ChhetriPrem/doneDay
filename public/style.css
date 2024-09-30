@@ -1,23 +1,33 @@
 body {
-  background-color: rgb(222, 241, 180);
+  background-color: #f9d99c;
 }
+
 input {
   height: 30px;
   width: 200px;
   border-radius: 10px;
   border: none;
   padding: 10px;
+  font-size: 14px; /* Adjust font size for better readability */
 }
+
 button {
   padding: 10px;
-
   width: 80px;
   border-radius: 10px;
+  border: none; /* Remove default border */
+  background-color: #fc8888; /* Set a background color */
+  color: white; /* Set text color to white for contrast */
+  cursor: pointer; /* Change cursor to pointer on hover */
+}
+
+button:hover {
+  background-color: #555; /* Darker background on hover */
 }
 
 #signup,
 #signin {
-  height: 100svh;
+  height: 100vh; /* Use 100vh instead of 100svh for better compatibility */
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -29,12 +39,41 @@ button {
   display: none;
 }
 
-#signin-btn-switch {
-  background-color: rgb(222, 241, 180);
-  border: none;
+#signin-btn-switch,
+#signup-btn-switch {
+  background-color: transparent; /* Transparent background */
+  border: none; /* Remove border */
+  color: #333; /* Dark text color */
   padding: 0px;
   margin: 0px;
-  width: 55px;
   font-size: 1rem;
   font-weight: 600;
+  cursor: pointer; /* Change cursor to pointer */
+}
+
+label {
+  display: flex;
+  align-items: center; /* Align items vertically */
+}
+
+label input {
+  margin-right: 5px; /* Space between checkbox and text */
+}
+
+.edit-input {
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 5px;
+  width: 100%;
+}
+
+.signup-password-div {
+  position: relative;
+}
+#show-password-signup,
+#show-password-signin {
+  position: absolute;
+  right: 0px;
+  bottom: 3px;
+  transform: translate(-50%, -50%);
 }

@@ -1,15 +1,53 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Todo</title>
-</head>
-<body>
-    <main>
-        <input id="title" placeholder="Title">
-        <input id="description" placeholder="Describe">
-        
-    </main>
-</body>
+    <link rel="stylesheet" href="todo.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css"
+    />
+    <link rel="stylesheet" href="./components/toast/toast.css" />
+  </head>
+  <body>
+    <header>
+      <div>
+        <h2>Done Day</h2>
+      </div>
+      <div id="header-btn">
+        <button id="refresh" onclick="run()">
+          <img src="./assets/refresh-button.png" alt="Refresh" height="30px" />
+        </button>
+        <button id="signout" onclick="signout()">
+          <img src="./assets/signout.png" height="30px" />
+        </button>
+      </div>
+    </header>
+    <div class="container">
+      <div class="input">
+        <img src="./assets/download (3).png" height="300px" />
+        <div id="input">
+          <input id="title" placeholder="Title" />
+          <input id="description" class="description" placeholder="Describe" />
+          <button class="send-button" id="add-button" onclick="addTodo()">
+            Send
+          </button>
+        </div>
+      </div>
+
+      <div
+        class="random"
+        style="min-height: 0svh; margin-bottom: 100px; text-align: center"
+      >
+        <h1 id="greet"></h1>
+        <ul class="notifications-container"></ul>
+        <div id="main" style="text-align: left" center></div>
+      </div>
+    </div>
+    <script type="module" src="./components/toast/toast.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script type="module" src="./script.js"></script>
+  </body>
 </html>

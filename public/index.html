@@ -5,65 +5,118 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Todo App</title>
     <link rel="stylesheet" href="style.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css"
+    />
+    <link rel="stylesheet" href="./components/toast/toast.css" />
   </head>
   <body>
     <div id="signup-container">
       <div id="signup">
-        <img src="./assets/bg.png" height="200px" />
-        <input id="email" placeholder="Email" />
-        <input id="password" placeholder="Password" />
-        <input id="username" placeholder="Username" />
+        <img src="./assets/download.png" height="300px" alt="Todo App Logo" />
+        <input id="email" type="email" placeholder="Email" required />
+        <div class="signup-password-div">
+          <input
+            id="password"
+            type="password"
+            placeholder="Password"
+            required
+          />
+          <span class="password-toggle-icon" id="show-password-signup">
+            <i class="fas fa-eye"></i>
+          </span>
+        </div>
+
+        <input id="username" placeholder="Username" required />
         <p>
           Already have an account?
-          <button onclick="switchLogin()" id="signin-btn-switch">
-            Sign in
-          </button>
+          <button id="signin-btn-switch">Sign in</button>
         </p>
-        <button onclick="sendData()">Send</button>
+        <button id="signup-btn">Send</button>
       </div>
     </div>
     <div id="signin-container" style="display: none">
       <div id="signin">
-        <img src="./assets/bg.png" height="200px" />
-        <input id="l-email" placeholder="Email" />
-        <input id="l-password" placeholder="Password" />
-        <button onclick="retrieveData()">Send</button>
+        <img src="./assets/download.png" height="300px" alt="Todo App Logo" />
+        <input id="l-email" type="email" placeholder="Email" required />
+        <div class="signup-password-div">
+          <input
+            id="l-password"
+            type="password"
+            placeholder="Password"
+            required
+          />
+          <span class="password-toggle-icon" id="show-password-signin">
+            <i class="fas fa-eye"></i>
+          </span>
+        </div>
+        <p>
+          Create a new account
+          <button id="signup-btn-switch">Sign up</button>
+        </p>
+        <button id="signin-btn">Send</button>
       </div>
     </div>
-
+    <ul class="notifications-container"></ul>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <script>
-      // Check for token on page load
+    <script src="https://cdn.jsdelivr.net/npm/js-cookie/src/js.cookie.min.js"></script>
+    <script type="module">
+      import { showToast } from "./components/toast/toast.js";
 
       const switchLogin = () => {
-        const signupDiv = document.getElementById("signup-container");
-        const signinDiv = document.getElementById("signin-container");
-
-        signupDiv.style.display = "none";
-        signinDiv.style.display = "block";
+        document.getElementById("signup-container").style.display = "none";
+        document.getElementById("signin-container").style.display = "block";
       };
+      const switchSingup = () => {
+        document.getElementById("signup-container").style.display = "block";
+        document.getElementById("signin-container").style.display = "none";
+      };
+
+      const togglePasswordVisibility = (toggleIconId, inputId) => {
+        const passwordInput = document.getElementById(inputId);
+        const toggleIcon = document
+          .getElementById(toggleIconId)
+          .querySelector("i");
+
+        toggleIcon.addEventListener("click", () => {
+          const isPasswordHidden = passwordInput.type === "password";
+          passwordInput.type = isPasswordHidden ? "text" : "password"; // Toggle password visibility
+          toggleIcon.classList.toggle("fa-eye", isPasswordHidden);
+          toggleIcon.classList.toggle("fa-eye-slash", !isPasswordHidden);
+        });
+      };
+
+      togglePasswordVisibility("show-password-signup", "password");
+      togglePasswordVisibility("show-password-signin", "l-password");
 
       const sendData = async () => {
         const email = document.getElementById("email").value;
         const password = document.getElementById("password").value;
         const username = document.getElementById("username").value;
 
+        if (!email || !password || !username) {
+          showToast("error", "Input all fields");
+          return;
+        }
+
         try {
           const response = await axios.post("/signup", {
-            email: email,
-            password: password,
-            username: username,
+            email,
+            password,
+            username,
           });
 
-          console.log(response.data.success);
-          const token = response.headers["token"];
-          console.log(token);
-          localStorage.setItem("token", token); // Store the token
           if (response.data.success) {
-            window.location.href = "/todo"; // Redirect if signup successful
+            const token = response.data.token;
+            Cookies.set("token", token, { expires: 7 });
+            window.location.href = "/todo";
+          } else {
+            showToast("error", response.data.message);
           }
         } catch (error) {
           console.error("Error during signup:", error);
+          showToast("error", "Signup failed. Please try again.");
         }
       };
 
@@ -71,48 +124,60 @@
         const email = document.getElementById("l-email").value;
         const password = document.getElementById("l-password").value;
 
+        if (!email) {
+          showToast("warning", "Please enter email");
+          return;
+        } else if (!password) {
+          showToast("warning", "Please enter password");
+          return;
+        }
+
         try {
-          const response = await axios.post("/signin", {
-            email: email,
-            password: password,
-          });
+          const response = await axios.post("/signin", { email, password });
 
           if (response.data.success) {
-            window.location.href = "/todo"; // Redirect if login successful
-            console.log("Logged in successfully");
-            const token = response.headers["token"];
-            console.log(token);
-            localStorage.setItem("token", token); // Store the token
+            const token = response.data.token;
+            Cookies.set("token", token, { expires: 7 });
+            window.location.href = "/todo";
           } else {
-            console.log("Something went terribly wrong");
+            showToast("error", response.data.message || "An error occurred");
           }
         } catch (error) {
           console.error("Error during sign-in:", error);
+          if (error.response && error.response.data) {
+            showToast(
+              "error",
+              error.response.data.message || "Sign-in failed."
+            );
+          } else {
+            showToast("error", "Sign-in failed. Please try again.");
+          }
         }
       };
 
       window.onload = async () => {
-        const token = localStorage.getItem("token"); // Adjust to your token key
-
+        const token = Cookies.get("token");
         if (token) {
           try {
             const response = await axios.get("/", {
-              headers: {
-                token: token, // Send token in the header
-              },
+              headers: { Authorization: `Bearer ${token}` },
             });
 
-            // Redirect to /todo if token is valid
-            if (response.data.success) {
+            if (response.status === 200) {
               window.location.href = "/todo";
-            } else {
-              console.log("Token is invalid, please sign in.");
             }
           } catch (error) {
             console.error("Error validating token:", error);
+            alert("Error validating token. Please sign in again.");
           }
         }
       };
+
+      document.getElementById("signup-btn").onclick = sendData;
+      document.getElementById("signin-btn-switch").onclick = switchLogin;
+      document.getElementById("signup-btn-switch").onclick = switchSingup;
+      document.getElementById("signin-btn").onclick = retrieveData;
     </script>
+    <script type="module" src="./components/toast/toast.js"></script>
   </body>
 </html>

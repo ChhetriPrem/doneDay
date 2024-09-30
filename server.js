@@ -1,160 +1,225 @@
 // Import required libraries and modules
-const express = require("express"); // Express framework for building web applications
-const { UserModel, TodoModel } = require("./db"); // Import the User and Todo models from our database file
-const jwt = require("jsonwebtoken"); // Library for working with JSON Web Tokens
-const mongoose = require("mongoose"); // Library for interacting with MongoDB
-const path = require("path"); // Library for handling file and directory paths
+const express = require("express");
+const { UserModel, TodoModel } = require("./db");
+const jwt = require("jsonwebtoken");
+const mongoose = require("mongoose");
+const path = require("path");
+const cookieParser = require("cookie-parser");
 
 // Set a secret key for signing and verifying tokens
 const SECRET_KEY = "renaoisbest@genius";
-const app = express(); // Create an instance of Express
-const PORT = 6969; // Define the port number for our server
+const app = express();
+const PORT = 6969;
 
 // Connect to MongoDB using Mongoose
-mongoose.connect(
-  "mongodb+srv://renao:ccJorErFMstEDQgo@cluster0.kak04.mongodb.net/todo-renao"
-);
+const connectDB = async () => {
+  await mongoose.connect(
+    "mongodb+srv://renao:ccJorErFMstEDQgo@cluster0.kak04.mongodb.net/todo-renao"
+  );
+  console.log("Database connected successfully");
+};
+connectDB();
 
 // Serve static files (like HTML, CSS, JS) from the "public" folder
 app.use(express.static(path.join(__dirname, "public")));
 
-// Middleware to parse JSON request bodies, making it easier to work with incoming data
+// Middleware to parse JSON request bodies
 app.use(express.json());
 
-// Root endpoint that serves the main HTML page
+// Root endpoint to serve the main HTML page
 app.get("/", (req, res) => {
-  const token = req.headers.token; // Get the token from request headers
-  if (token) {
-    res.redirect("/todo"); // If there's a token, redirect to the /todo page
+  const authHeader = req.headers.authorization;
+
+  const userToken = authHeader && authHeader.split(" ")[1]; // Extract token from 'Bearer <token>'
+
+  if (userToken) {
+    try {
+      jwt.verify(userToken, SECRET_KEY); // Verify the token
+      res.json({ success: true }); // Indicate the token is valid
+    } catch (error) {
+      return res.status(401).json({ success: false, message: "Invalid token" });
+    }
   } else {
-    console.log("Token doesn't exist"); // Log a message if there's no token
-    // You might want to send a message here to inform the user to sign in
+    console.log("No token provided");
+    res.status(401).json({ success: false, message: "No token provided" });
   }
 });
 
-// Authentication middleware to protect certain routes
+// Authentication middleware
 const auth = (req, res, next) => {
-  const token = req.headers.token; // Get the token from request headers
-  if (!token) {
-    return res.status(401).json({ message: "No token provided" }); // Respond with 401 if no token is found
-  }
+  const cookie = req.headers.cookie;
+  if (!cookie) {
+    res.sendFile(path.join(__dirname, "public", "index.html"));
+  } else {
+    const userTok = cookie.split("=");
 
-  try {
-    const user = jwt.verify(token, SECRET_KEY); // Verify the token and decode it
-    req.user = user; // Attach the user data to the request object
-    console.log(user.id); // Log the user's ID for debugging purposes
-    next(); // Move on to the next function or route
-  } catch (error) {
-    return res.status(401).json({ message: "Invalid token" }); // Handle errors during token verification
+    // Check if the token is present
+    if (userTok.length === 2) {
+      const token = userTok[1]; // The token is the second part
+
+      try {
+        const user = jwt.verify(token, SECRET_KEY); // Verify and decode token
+        req.user = user; // Attach user data to request
+        next(); // Proceed to the next middleware or route
+      } catch (error) {
+        return res.status(401).json({ message: "Invalid token" });
+      }
+    } else {
+      console.log("Token not found");
+    }
   }
 };
 
 // Endpoint for user signup
-app.post("/signup", (request, response) => {
-  const createData = async () => {
-    try {
-      // Extract email, password, and username from the request body
-      const { email, password, username } = request.body;
+app.post("/signup", async (request, response) => {
+  try {
+    const { email, password, username } = request.body;
 
-      // Create a new user in the database
-      await UserModel.create({
-        email,
-        password,
-        username,
-      });
+    const user = await UserModel.create({
+      email,
+      password,
+      username,
+    });
 
-      // Send a success response back to the client
-      const token = req.headers.token;
-      response.setHeader("token", token); // (Optional) Set an auth header
-      response.json({
-        message: "User created successfully", // Success message
-        success: true, // Indicate success
-      });
-    } catch (error) {
-      // Send an error response if something goes wrong
-      response.status(500).json({
-        message: "Something went wrong: " + error,
-      });
-    }
-  };
+    const token = jwt.sign({ id: user._id }, SECRET_KEY);
 
-  createData(); // Call the function to create user data
+    response.json({
+      message: "User created successfully",
+      success: true,
+      token: token, // Include the token in the response
+    });
+  } catch (error) {
+    response.status(500).json({
+      message: "Something went wrong: " + error.message,
+    });
+  }
 });
 
 // Endpoint for user sign-in
-app.post("/signin", (request, respond) => {
-  const syncUser = async () => {
-    // Get the email from the request body
-    const { email } = request.body;
+app.post("/signin", async (req, res) => {
+  try {
+    const { email, password } = req.body;
 
-    // Check if the user exists in the database
-    const user = await UserModel.findOne({ email });
+    const user = await UserModel.findOne({ email, password });
 
     if (user) {
-      // If user is found, create a token
       const token = jwt.sign({ id: user._id }, SECRET_KEY);
 
-      respond.setHeader("token", token); // Send the token back in the response headers
-      respond.json({
-        token, // Include the token in the response
-        message: "User logged in successfully", // Success message
-        success: true, // Indicate success
+      res.json({
+        token, // Send token in the response body
+        message: "User logged in successfully",
+        success: true,
       });
     } else {
-      console.log("User not found"); // Log if no user is found
-      respond.status(404).json({ message: "User not found" }); // Respond with a not found error
+      res.status(404).json({ message: "User not found", noAccount: true });
     }
-  };
-
-  syncUser(); // Call the function to synchronize user data
+  } catch (error) {
+    res.status(500).json({ message: "Error during sign-in: " + error });
+  }
 });
 
 // Endpoint to create a new todo item
 app.post("/todo", auth, async (req, res) => {
-  const user = req.user; // Get the authenticated user from the request
-  console.log("User in /todo is: " + user.id); // Log the user's ID for debugging
-
-  const userId = user.id; // Get the user's ID
+  const { id: userId } = req.user; // Get the authenticated user's ID
+  const title = req.body.title;
+  const description = req.body.description;
   try {
-    // Create a new todo item in the database
-    await TodoModel.create({
-      userId, // Associate the todo with the user ID
-      title: "This is the todo title", // Example title
-      description: "This is the todo description", // Example description
+    const todo = await TodoModel.create({
+      userId,
+      title,
+      description,
     });
 
-    // Send a success message back to the client
     res.json({
       message: "Todo created successfully",
+      todo, // Return the newly created todo
     });
   } catch (error) {
-    console.error(error); // Log any errors that occur
     res.status(500).json({
-      message: "Something went wrong while creating todo",
+      message: "Something went wrong while creating todo: " + error,
     });
   }
 });
 
 // Endpoint to retrieve todos for the authenticated user
 app.get("/todo", auth, async (req, res) => {
-  const user = req.user; // Get the authenticated user
-  const userId = user.id; // Extract the user's ID
+  const userId = req.user; // Get the authenticated user's ID
+
+  if (userId) {
+    res.sendFile(path.join(__dirname, "public", "todo.html"));
+  }
+});
+
+app.get("/api/todos", auth, async (req, res) => {
+  const userId = req.user.id; // Get the user's ID from the authenticated request
+
+  console.log("User ID is: " + userId);
+
+  // Fetch todos from the database for this user
+  const todos = await TodoModel.find({ userId: userId });
+
+  const user = await UserModel.findById(userId);
+  console.log("User's Todos: ", todos);
+  console.log("User's Name: " + user.username);
+
+  // Map todos to include their details in the response
+  const list = todos.map((element) => ({
+    id: element._id, // Include the todo ID
+    title: element.title,
+    description: element.description,
+    userId: element.userId,
+  }));
+
+  res.json({
+    username: user.username,
+    todos: list, // Send the list of todos in the response
+  });
+});
+
+// Endpoint to delete a todo item by ID
+app.delete("/todo/:id", auth, async (req, res) => {
+  const todoId = req.params.id; // Get the todo ID from the request parameters
+  const userId = req.user.id; // Get the authenticated user's ID
 
   try {
-    // Find all todo items that belong to the user
-    const todos = await TodoModel.find({ userId: userId });
+    // Delete the todo from the database
+    const result = await TodoModel.deleteOne({ _id: todoId, userId: userId });
 
-    // Format the todos to only include title and description
-    const formattedTodos = todos.map((todo) => ({
-      title: todo.title,
-      description: todo.description,
-    }));
+    if (result.deletedCount === 0) {
+      return res
+        .status(404)
+        .json({ message: "Todo not found or does not belong to user" });
+    }
 
-    // Send back the formatted todos as a JSON response
-    res.json({ todos: formattedTodos });
+    res.json({ message: "Todo deleted successfully" });
   } catch (error) {
-    console.error(error); // Log any errors that occur
-    res.status(500).json({ message: "Error retrieving todos" });
+    res.status(500).json({ message: "Error deleting todo: " + error.message });
+  }
+});
+
+// Endpoint to update a todo item by ID
+app.put("/todo/:id", auth, async (req, res) => {
+  const todoId = req.params.id; // Get the todo ID from the request parameters
+  const userId = req.user.id; // Get the authenticated user's ID
+  const { title, description } = req.body; // Extract title and description from the request body
+
+  try {
+    // Find the todo and update it
+    const updatedTodo = await TodoModel.findOneAndUpdate(
+      { _id: todoId, userId: userId }, // Find the todo belonging to the user
+      { title, description }, // Update fields
+      { new: true } // Return the updated document
+    );
+
+    if (!updatedTodo) {
+      return res
+        .status(404)
+        .json({ message: "Todo not found or does not belong to user" });
+    }
+
+    res.json({ message: "Todo updated successfully", todo: updatedTodo });
+  } catch (error) {
+    res.status(500).json({ message: "Error updating todo: " + error.message });
   }
 });
 
