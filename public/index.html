@@ -113,7 +113,7 @@
           if (response.data.success) {
             const token = response.data.token;
             Cookies.set("token", token, { expires: 7 });
-            window.location.href = "/todo";
+            window.location.href = "/api/todos";
           } else {
             showToast("error", response.data.message);
           }
@@ -144,7 +144,7 @@
           if (response.data.success) {
             const token = response.data.token;
             Cookies.set("token", token, { expires: 7 });
-            window.location.href = "/todo";
+            window.location.href = "/api/todos";
           } else {
             showToast("error", response.data.message || "An error occurred");
           }
@@ -170,7 +170,7 @@
             });
 
             if (response.status === 200) {
-              window.location.href = "/todo";
+              window.location.href = "/api/todo";
             }
           } catch (error) {
             console.error("Error validating token:", error);
