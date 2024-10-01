@@ -102,7 +102,7 @@
 
         try {
           const response = await axios.post(
-            "/api/signup",
+            "api/auth/signup",
             {
               email,
               password,
@@ -137,7 +137,7 @@
 
         try {
           const response = await axios.post(
-            "/api/signin",
+            "api/auth/signin",
             { email, password }
           );
 
