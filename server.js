@@ -17,7 +17,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
 // MongoDB connection (Replace with your actual MongoDB connection string)
-mongoose.connect("mongodb+srv://renao:ccJorErFMstEDQgo@cluster0.kak04.mongodb.net/todo-renao", { useNewUrlParser: true, useUnifiedTopology: true })
+mongoose.connect("mongodb+srv://renao:ccJorErFMstEDQgo@cluster0.kak04.mongodb.net/todo-renao")
   .then(() => console.log("MongoDB connected"))
   .catch(err => console.error("MongoDB connection error:", err));
 
