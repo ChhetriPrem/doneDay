@@ -137,7 +137,7 @@ run();
 const updateTodo = async (id, title, description) => {
   try {
     await axios.put(`/todo/${id}`, { title, description });
-    run(); // Refresh todos after updating
+    run(); 
   } catch (error) {
     console.error("Error updating todo:", error);
   }
@@ -146,7 +146,7 @@ const updateTodo = async (id, title, description) => {
 const deleteTodo = async (id) => {
   try {
     await axios.delete(`/todo/${id}`);
-    run(); // Refresh todos after deleting
+    run(); // Refresh  after delete
   } catch (error) {
     console.error("Error deleting todo:", error);
   }
@@ -155,11 +155,10 @@ const deleteTodo = async (id) => {
 const signout = () => {
   document.cookie = "token=; Max-Age=0; path=/;";
   console.log(document.cookie);
-  window.location.href = "/"; // Redirect to the homepage
+  window.location.href = "/"; 
 };
 
-// Initial fetch when the page loads
-// Attach functions to the window object for global accessibility
+
 window.addTodo = addTodo;
-window.run = run; // Ensure run is globally accessible
-window.signout = signout; // Ensure signout is globally accessible
+window.run = run; 
+window.signout = signout; 
