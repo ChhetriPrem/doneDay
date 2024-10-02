@@ -4,9 +4,9 @@ const Schema = mongoose.Schema;
 const ObjectId = mongoose.ObjectId;
 
 const Users = new Schema({
-  email: String,
-  password: String,
-  username: String,
+  email: { type: String, unique: true, required: true }, 
+  password: { type: String, required: true }, 
+  username: { type: String, unique: true, required: true }, 
   userId: { type: ObjectId, default: null },
 });
 
