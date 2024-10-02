@@ -2,25 +2,27 @@
 const express = require("express");
 const { TodoModel } = require("../db");
 const { UserModel } = require("../db");
-const { auth } = require("../middleware/auth"); // Create this middleware
-
+const { auth } = require("../middleware/auth"); // Import the authentication middleware
+const path = require("path");
 const router = express.Router();
+
+router.use(express.static(path.join(__dirname, "..", "public")));
 
 // Endpoint to create a new todo item
 router.post("/", auth, async (req, res) => {
-  const { id: userId } = req.user;
-  const { title, description } = req.body;
+  const { id: userId } = req.user; // Get the user's ID from the authenticated request
+  const { title, description } = req.body; // Extract title and description from the request body
 
   try {
     const todo = await TodoModel.create({
-      userId,
+      userId, // Associate the todo with the user
       title,
       description,
     });
-    console.log(todo);
+
     res.json({
       message: "Todo created successfully",
-      todo,
+      todo, // Return the created todo
     });
   } catch (error) {
     res.status(500).json({
@@ -29,10 +31,16 @@ router.post("/", auth, async (req, res) => {
   }
 });
 
-// Endpoint to retrieve todos for the authenticated user
+router.get("/user", auth, async (req, res) => {
+  const userId = req.user; // Get the authenticated user's ID
 
+  if (userId) {
+    res.sendFile(path.join(__dirname, "..", "public", "todo.html"));
+  }
+});
+// Endpoint to retrieve todos for the authenticated user
 router.get("/", auth, async (req, res) => {
-  const userId = req.user.id;
+  const userId = req.user.id; // Get the user's ID from the authenticated request
 
   try {
     // Fetch the user's details
@@ -51,12 +59,14 @@ router.get("/", auth, async (req, res) => {
     res.status(500).json({ message: "An error occurred while fetching todos" });
   }
 });
+
 // Endpoint to delete a todo item by ID
 router.delete("/:id", auth, async (req, res) => {
-  const todoId = req.params.id;
-  const userId = req.user.id;
+  const todoId = req.params.id; // Get the todo ID from the request parameters
+  const userId = req.user.id; // Get the user's ID from the authenticated request
 
   try {
+    // Attempt to delete the todo
     const result = await TodoModel.deleteOne({ _id: todoId, userId });
 
     if (result.deletedCount === 0) {
@@ -73,15 +83,16 @@ router.delete("/:id", auth, async (req, res) => {
 
 // Endpoint to update a todo item by ID
 router.put("/:id", auth, async (req, res) => {
-  const todoId = req.params.id;
-  const userId = req.user.id;
-  const { title, description } = req.body;
+  const todoId = req.params.id; // Get the todo ID from the request parameters
+  const userId = req.user.id; // Get the user's ID from the authenticated request
+  const { title, description } = req.body; // Extract title and description from the request body
 
   try {
+    // Attempt to find and update the todo
     const updatedTodo = await TodoModel.findOneAndUpdate(
-      { _id: todoId, userId },
+      { _id: todoId, userId }, // Ensure the todo belongs to the user
       { title, description },
-      { new: true }
+      { new: true } // Return the updated document
     );
 
     if (!updatedTodo) {
@@ -96,4 +107,4 @@ router.put("/:id", auth, async (req, res) => {
   }
 });
 
-module.exports = router;
+module.exports = router; // Export the router
