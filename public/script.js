@@ -115,19 +115,17 @@ const run = async () => {
 
   try {
     const response = await fetch("/api/todos");
-    console.log(response);
+ 
     const data = await response.json();
-    console.log(data);
+
     const todos = data.todos;
-    console.log("todos---");
-    console.log(todos);
 
     // Remove existing todos from the display
     existingTodos.forEach((todo) => main.removeChild(todo));
 
     // Add fetched todos to the display
     todos.forEach((element) => {
-      refreshTodo(element.id, element.title, element.description);
+      refreshTodo(element._id, element.title, element.description);
     });
   } catch (error) {
     console.error("Error fetching todos:", error);
@@ -136,7 +134,7 @@ const run = async () => {
 run();
 const updateTodo = async (id, title, description) => {
   try {
-    await axios.put(`/todo/${id}`, { title, description });
+    await axios.put(`/api/todos/${id}`, { title, description });
     run(); 
   } catch (error) {
     console.error("Error updating todo:", error);
@@ -145,7 +143,7 @@ const updateTodo = async (id, title, description) => {
 
 const deleteTodo = async (id) => {
   try {
-    await axios.delete(`/todo/${id}`);
+    await axios.delete(`/api/todos/${id}`);
     run(); // Refresh  after delete
   } catch (error) {
     console.error("Error deleting todo:", error);
