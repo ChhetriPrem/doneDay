@@ -5,6 +5,9 @@ const fetchName = async () => {
     const response = await fetch("/api/todos/");
     const data = await response.json();
     const username = data.username;
+    console.log(username);
+    console.log("---");
+    console.log(username);
     const greet = document.getElementById("greet");
     greet.innerHTML = "What's on your mind, " + username;
   } catch {
@@ -111,10 +114,13 @@ const run = async () => {
   const existingTodos = Array.from(main.children); // Get existing todos
 
   try {
-    const response = await fetch("/api/todos/");
+    const response = await fetch("/api/todos");
+    console.log(response);
     const data = await response.json();
-
+    console.log(data);
     const todos = data.todos;
+    console.log("todos---");
+    console.log(todos);
 
     // Remove existing todos from the display
     existingTodos.forEach((todo) => main.removeChild(todo));
@@ -127,7 +133,7 @@ const run = async () => {
     console.error("Error fetching todos:", error);
   }
 };
-
+run();
 const updateTodo = async (id, title, description) => {
   try {
     await axios.put(`/todo/${id}`, { title, description });

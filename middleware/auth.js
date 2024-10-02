@@ -1,7 +1,9 @@
 // middleware/auth.js
 const jwt = require("jsonwebtoken");
-const SECRET_KEY = "renaoisbest@genius";
 
+const path = require("path");
+require("dotenv").config();
+const SECRET_KEY = process.env.SECRET_KEY;
 const auth = (req, res, next) => {
   const cookie = req.headers.cookie;
   if (!cookie) {

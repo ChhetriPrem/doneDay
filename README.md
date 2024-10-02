@@ -39,5 +39,5 @@ A simple full-stack Todo application that allows users to create, manage, and de
 1. **Clone the Repository:**
 
    ```bash
-   git clone https://github.com/ChhetriPrem/doneDay
+   git clone https://github.com/ChhetriPrem/todo-app.git
    cd todo-app

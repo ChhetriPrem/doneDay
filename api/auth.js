@@ -2,9 +2,9 @@
 const express = require("express");
 const jwt = require("jsonwebtoken");
 const { UserModel } = require("../db");
-
+require("dotenv").config();
+const SECRET_KEY = process.env.SECRET_KEY;
 const router = express.Router();
-const SECRET_KEY = "renaoisbest@genius";
 
 // Endpoint for user signup
 router.post("/signup", async (request, response) => {

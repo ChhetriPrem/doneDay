@@ -1,6 +1,7 @@
 // api/todos.js
 const express = require("express");
 const { TodoModel } = require("../db");
+const { UserModel } = require("../db");
 const { auth } = require("../middleware/auth"); // Create this middleware
 
 const router = express.Router();
@@ -16,7 +17,7 @@ router.post("/", auth, async (req, res) => {
       title,
       description,
     });
-
+    console.log(todo);
     res.json({
       message: "Todo created successfully",
       todo,
@@ -29,15 +30,27 @@ router.post("/", auth, async (req, res) => {
 });
 
 // Endpoint to retrieve todos for the authenticated user
+
 router.get("/", auth, async (req, res) => {
   const userId = req.user.id;
 
-  // Fetch todos from the database for this user
-  const todos = await TodoModel.find({ userId });
+  try {
+    // Fetch the user's details
+    const user = await UserModel.findById(userId).select("username");
 
-  res.json(todos);
+    // Fetch todos from the database for this user
+    const todos = await TodoModel.find({ userId });
+
+    // Respond with both username and todos
+    res.json({
+      username: user ? user.username : "Unknown User", // Default to "Unknown User" if not found
+      todos,
+    });
+  } catch (error) {
+    console.error("Error fetching todos or user:", error);
+    res.status(500).json({ message: "An error occurred while fetching todos" });
+  }
 });
-
 // Endpoint to delete a todo item by ID
 router.delete("/:id", auth, async (req, res) => {
   const todoId = req.params.id;
@@ -47,7 +60,9 @@ router.delete("/:id", auth, async (req, res) => {
     const result = await TodoModel.deleteOne({ _id: todoId, userId });
 
     if (result.deletedCount === 0) {
-      return res.status(404).json({ message: "Todo not found or does not belong to user" });
+      return res
+        .status(404)
+        .json({ message: "Todo not found or does not belong to user" });
     }
 
     res.json({ message: "Todo deleted successfully" });
@@ -70,7 +85,9 @@ router.put("/:id", auth, async (req, res) => {
     );
 
     if (!updatedTodo) {
-      return res.status(404).json({ message: "Todo not found or does not belong to user" });
+      return res
+        .status(404)
+        .json({ message: "Todo not found or does not belong to user" });
     }
 
     res.json({ message: "Todo updated successfully", todo: updatedTodo });
