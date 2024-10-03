@@ -2,12 +2,16 @@ import { showToast } from "./components/toast/toast.js";
 
 const fetchName = async () => {
   try {
-    const response = await fetch("/api/todos/");
+    const response = await fetch("/api/todos/user");
+
     const data = await response.json();
+
     const username = data.username;
+    console.log("useranme", data.username);
     console.log(username);
     console.log("---");
     console.log(username);
+
     const greet = document.getElementById("greet");
     greet.innerHTML = "What's on your mind, " + username;
   } catch {
@@ -25,7 +29,7 @@ const addTodo = async () => {
     return;
   }
   try {
-    await axios.post("/api/todos/", {
+    await axios.post("/api/todos/user", {
       title,
       description,
     });
@@ -114,17 +118,22 @@ const run = async () => {
   const existingTodos = Array.from(main.children); // Get existing todos
 
   try {
-    const response = await fetch("/api/todos");
- 
-    const data = await response.json();
+    const response = await fetch("/api/todos/user");
+
+    console.log(response);
+    const data = await response.json(); // bug here - control doesnt reach here
+    console.log(data);
+    console.log("todos");
 
     const todos = data.todos;
+    console.log("element ID:", todos);
 
     // Remove existing todos from the display
     existingTodos.forEach((todo) => main.removeChild(todo));
 
     // Add fetched todos to the display
     todos.forEach((element) => {
+      console.log("element  with ID:", element.title);
       refreshTodo(element._id, element.title, element.description);
     });
   } catch (error) {
@@ -135,7 +144,8 @@ run();
 const updateTodo = async (id, title, description) => {
   try {
     await axios.put(`/api/todos/${id}`, { title, description });
-    run(); 
+
+    run(); // Refresh todos after updating
   } catch (error) {
     console.error("Error updating todo:", error);
   }
@@ -143,8 +153,9 @@ const updateTodo = async (id, title, description) => {
 
 const deleteTodo = async (id) => {
   try {
+    console.log("Deleting todo with ID:", id);
     await axios.delete(`/api/todos/${id}`);
-    run(); // Refresh  after delete
+    run(); // Refresh todos after deleting
   } catch (error) {
     console.error("Error deleting todo:", error);
   }
@@ -153,10 +164,11 @@ const deleteTodo = async (id) => {
 const signout = () => {
   document.cookie = "token=; Max-Age=0; path=/;";
   console.log(document.cookie);
-  window.location.href = "/"; 
+  window.location.href = "/"; // Redirect to the homepage
 };
 
-
+// Initial fetch when the page loads
+// Attach functions to the window object for global accessibility
 window.addTodo = addTodo;
-window.run = run; 
-window.signout = signout; 
+window.run = run; // Ensure run is globally accessible
+window.signout = signout; // Ensure signout is globally accessible

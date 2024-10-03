@@ -1,13 +1,12 @@
-// middleware/auth.js
 const jwt = require("jsonwebtoken");
-
-const path = require("path");
 require("dotenv").config();
 const SECRET_KEY = process.env.SECRET_KEY;
+
 const auth = (req, res, next) => {
   const cookie = req.headers.cookie;
+
   if (!cookie) {
-    return res.sendFile(path.join(__dirname, "../public", "index.html"));
+    return res.redirect("/"); // Redirect to the home page if no cookie
   } else {
     const userTok = cookie.split("=");
 
@@ -16,8 +15,8 @@ const auth = (req, res, next) => {
 
       try {
         const user = jwt.verify(token, SECRET_KEY);
-        req.user = user;
-        next();
+        req.user = user; // Attach user data to request
+        next(); // Proceed to the next middleware or route
       } catch (error) {
         return res.status(401).json({ message: "Invalid token" });
       }

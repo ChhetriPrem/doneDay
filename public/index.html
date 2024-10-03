@@ -27,7 +27,6 @@
             <i class="fas fa-eye"></i>
           </span>
         </div>
-
         <input id="username" placeholder="Username" required />
         <p>
           Already have an account?
@@ -36,6 +35,7 @@
         <button id="signup-btn">Send</button>
       </div>
     </div>
+
     <div id="signin-container" style="display: none">
       <div id="signin">
         <img src="./assets/download.png" height="300px" alt="Todo App Logo" />
@@ -58,7 +58,9 @@
         <button id="signin-btn">Send</button>
       </div>
     </div>
+
     <ul class="notifications-container"></ul>
+
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/js-cookie/src/js.cookie.min.js"></script>
     <script type="module">
@@ -68,7 +70,8 @@
         document.getElementById("signup-container").style.display = "none";
         document.getElementById("signin-container").style.display = "block";
       };
-      const switchSingup = () => {
+
+      const switchSignup = () => {
         document.getElementById("signup-container").style.display = "block";
         document.getElementById("signin-container").style.display = "none";
       };
@@ -81,7 +84,7 @@
 
         toggleIcon.addEventListener("click", () => {
           const isPasswordHidden = passwordInput.type === "password";
-          passwordInput.type = isPasswordHidden ? "text" : "password"; // Toggle password visibility
+          passwordInput.type = isPasswordHidden ? "text" : "password";
           toggleIcon.classList.toggle("fa-eye", isPasswordHidden);
           toggleIcon.classList.toggle("fa-eye-slash", !isPasswordHidden);
         });
@@ -101,89 +104,65 @@
         }
 
         try {
-          const response = await axios.post(
-            "api/auth/signup",
-            {
-              email,
-              password,
-              username,
-            }
-          );
-
+          const response = await axios.post("/api/auth/signup", {
+            email,
+            password,
+            username,
+          });
           if (response.data.success) {
             const token = response.data.token;
             Cookies.set("token", token, { expires: 7 });
-            window.location.href = "/todo.html";
+            showToast("success", response.data.message);
+            // Redirect or show todos
+
+            window.location.href = "/api/todos/redirect";
           } else {
             showToast("error", response.data.message);
           }
         } catch (error) {
-          console.error("Error during signup:", error);
-          showToast("error", "Signup failed. Please try again.");
+          showToast("error", "Signup failed");
+          console.error(error);
         }
       };
 
-      const retrieveData = async () => {
+      const sendSigninData = async () => {
         const email = document.getElementById("l-email").value;
         const password = document.getElementById("l-password").value;
 
-        if (!email) {
-          showToast("warning", "Please enter email");
-          return;
-        } else if (!password) {
-          showToast("warning", "Please enter password");
+        if (!email || !password) {
+          showToast("error", "Input all fields");
           return;
         }
 
         try {
-          const response = await axios.post(
-            "api/auth/signin",
-            { email, password }
-          );
-
+          const response = await axios.post("/api/auth/signin", {
+            email,
+            password,
+          });
           if (response.data.success) {
             const token = response.data.token;
             Cookies.set("token", token, { expires: 7 });
-            window.location.href = "/todo.html";
+            showToast("success", response.data.message);
+            // Redirect or show todos
           } else {
-            showToast("error", response.data.message || "An error occurred");
+            showToast("error", response.data.message);
           }
         } catch (error) {
-          console.error("Error during sign-in:", error);
-          if (error.response && error.response.data) {
-            showToast(
-              "error",
-              error.response.data.message || "Sign-in failed."
-            );
-          } else {
-            showToast("error", "Sign-in failed. Please try again.");
-          }
+          showToast("error", "Signin failed");
+          console.error(error);
         }
       };
 
-      window.onload = async () => {
-        const token = Cookies.get("token");
-        if (token) {
-          try {
-            const response = await axios.get("/", {
-              headers: { Authorization: `Bearer ${token}` },
-            });
-
-            if (response.status === 200) {
-              window.location.href = "/todo.html";
-            }
-          } catch (error) {
-            console.error("Error validating token:", error);
-            alert("Error validating token. Please sign in again.");
-          }
-        }
-      };
-
-      document.getElementById("signup-btn").onclick = sendData;
-      document.getElementById("signin-btn-switch").onclick = switchLogin;
-      document.getElementById("signup-btn-switch").onclick = switchSingup;
-      document.getElementById("signin-btn").onclick = retrieveData;
+      document.getElementById("signup-btn").addEventListener("click", sendData);
+      document
+        .getElementById("signin-btn")
+        .addEventListener("click", sendSigninData);
+      document
+        .getElementById("signin-btn-switch")
+        .addEventListener("click", switchLogin);
+      document
+        .getElementById("signup-btn-switch")
+        .addEventListener("click", switchSignup);
     </script>
-    <script type="module" src="./components/toast/toast.js"></script>
   </body>
 </html>

@@ -9,7 +9,7 @@ const router = express.Router();
 router.use(express.static(path.join(__dirname, "..", "public")));
 
 // Endpoint to create a new todo item
-router.post("/", auth, async (req, res) => {
+router.post("/user", auth, async (req, res) => {
   const { id: userId } = req.user; // Get the user's ID from the authenticated request
   const { title, description } = req.body; // Extract title and description from the request body
 
@@ -31,21 +31,21 @@ router.post("/", auth, async (req, res) => {
   }
 });
 
-router.get("/user", auth, async (req, res) => {
+router.get("/redirect", auth, async (req, res) => {
   const userId = req.user; // Get the authenticated user's ID
-
+  console.log("control reached here");
   if (userId) {
     res.sendFile(path.join(__dirname, "..", "public", "todo.html"));
   }
 });
 // Endpoint to retrieve todos for the authenticated user
-router.get("/", auth, async (req, res) => {
+router.get("/user", auth, async (req, res) => {
   const userId = req.user.id; // Get the user's ID from the authenticated request
 
   try {
     // Fetch the user's details
     const user = await UserModel.findById(userId).select("username");
-
+    console.log("user");
     // Fetch todos from the database for this user
     const todos = await TodoModel.find({ userId });
 
